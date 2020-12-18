@@ -17,9 +17,9 @@
 #include <WioLTEforArduino.h>
 #include <Adafruit_LPS35HW.h>
 
-Adafruit_LPS35HW lps35hw = Adafruit_LPS35HW();
+Adafruit_LPS35HW lps33hw = Adafruit_LPS35HW();
 
-#define LPS35HW_I2CADDR_ANOTHER 0x5C ///< LPS35HW another i2c address(connect from SDO to GND)
+#define LPS35HW_I2CADDR_ANOTHER 0x5C ///< LPS33HW another i2c address(connect from SDO to GND)
 
 /*// For SPI mode, we need a CS pin
 #define LPS_CS  10
@@ -52,30 +52,32 @@ void debugLED(short repeat,int interval, byte red, byte green, byte blue){
 }
 
 
-Adafruit_LPS35HW lps35hw_air = Adafruit_LPS35HW();
-Adafruit_LPS35HW lps35hw_water = Adafruit_LPS35HW();
+Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
+Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
 float pressure_air;
 float pressure_water;
 // setup LPS33HW
-boolean setupLPS35HW(){
-  if(!lps35hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
-  //if (!lps35hw_air.begin_SPI(LPS_CS)) {
-  //if (!lps35hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
+boolean setupLPS33HW(){
+  if(!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
+  //if (!lps33hw_air.begin_SPI(LPS_CS)) {
+  //if (!lps33hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     return false;
   }
-  if(!lps35hw_water.begin_I2C(LPS35HW_I2CADDR_ANOTHER)){
-  //if (!lps35hw_water.begin_SPI(LPS_CS)) {
-  //if (!lps35hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
+  if(!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_ANOTHER)){
+  //if (!lps33hw_water.begin_SPI(LPS_CS)) {
+  //if (!lps33hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     return false;
   }
   return true;
 }
-void readLPS35HW(){
-  pressure_air = lps35hw_air.readPressure();
-  pressure_water = lps35hw_water.readPressure();
+// get pressure from two LPS33HW
+void readLPS33HW(){
+  pressure_air = lps33hw_air.readPressure();
+  pressure_water = lps33hw_water.readPressure();
   return;
 }
-void printLPS35HW(){
+// serial print of two pressure values(LPS33HW)
+void printLPS33HW(){
   SerialUSB.print("1:");
   SerialUSB.println(pressure_air);
   SerialUSB.print("2:");
@@ -84,14 +86,15 @@ void printLPS35HW(){
 }
 
 void setup() {
+  debugLED(5,200,255,255,255);
   SerialUSB.begin(9600);
   SerialUSB.println("serial start");
-  setupLPS35HW();
+  setupLPS33HW();
 
-  /*if (!lps35hw.begin_I2C()) {
-  //if (!lps35hw.begin_SPI(LPS_CS)) {
-  //if (!lps35hw.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
-    //SerialUSB.println("Couldn't find LPS35HW chip");
+  /*if (!lps33hw.begin_I2C()) {
+  //if (!lps33hw.begin_SPI(LPS_CS)) {
+  //if (!lps33hw.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
+    //SerialUSB.println("Couldn't find LPS33HW chip");
     while (1){
       debugLED(5, 200, 255, 0, 0);
     }
@@ -100,10 +103,11 @@ void setup() {
 }
 
 void loop() {
-  readLPS35HW();
-  printLPS35HW();
+  debugLED(5,200,0,255,0);
+  readLPS33HW();
+  printLPS33HW();
 
-  //SerialUSB.println(lps35hw.readPressure());
+  //SerialUSB.println(lps33hw.readPressure());
   
   delay(1000);
 }
