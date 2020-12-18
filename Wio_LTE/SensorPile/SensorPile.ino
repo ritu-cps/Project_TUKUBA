@@ -44,7 +44,7 @@ PubSubClient MqttClient;
 // send_dataBox
 char pubMessage[512];
 // 通信許可
-bool isSend_data=false;
+bool isSend_data=true;
 //--------LPS33HW declare--------
 Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
@@ -226,8 +226,8 @@ void setup() {
 void loop() {
   readLPS33HW();
 	readSoilSensor();
-  //printLPS35HW();
-  //printSoilSensor();
+  printLPS33HW();
+  printSoilSensor();
 
   //通信許可ならば
   if(isSend_data){
@@ -235,7 +235,7 @@ void loop() {
       connectMqtt();
     }
     String data = buildJson();
-  
+    SerialUSB.println(data);
     data.toCharArray(pubMessage, data.length() + 1);
     MqttClient.publish(OUT_TOPIC, pubMessage);
   
@@ -245,5 +245,5 @@ void loop() {
     //センサー値で異常を検知したら isSend_data を true する
   }
   
-  delay(1000);
+  delay(3000);
 }

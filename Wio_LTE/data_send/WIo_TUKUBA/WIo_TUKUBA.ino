@@ -29,7 +29,7 @@ WioLTE Wio;
 WioLTEClient WioClient(&Wio);
 PubSubClient MqttClient;
 
-bool isInternet = false;
+bool isInternet = true;
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
@@ -42,7 +42,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 void setup()
 {
   wio_setUP();
-  // setup_Internet();
+  setup_Internet();
   SerialUSB.println("### Setup completed.");
 }
 
