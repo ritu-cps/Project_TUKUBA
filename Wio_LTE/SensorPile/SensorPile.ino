@@ -171,12 +171,12 @@ boolean setupLPS33HW(){
   if(!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
   //if (!lps33hw_air.begin_SPI(LPS_CS)) {
   //if (!lps33hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
-    return false;
+    //return false;
   }
   if(!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_ANOTHER)){
   //if (!lps33hw_water.begin_SPI(LPS_CS)) {
   //if (!lps33hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
-    return false;
+    //return false;
   }
   return true;
 }
