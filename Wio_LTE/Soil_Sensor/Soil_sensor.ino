@@ -2,17 +2,7 @@
 /**********
  * ---使用品---
  * マイコンボード:Wio-LTE
- * センサ:Adafruit LPS33HW
  * ---ピン配置---
- * LPS33HW
- *  VIN :
- *  3Vo:
- *  GND :
- *  SCK :
- *  SDO :
- *  SDI :
- *  CS :
- *  INT :
 **********/
 #include <WioLTEforArduino.h>
 
@@ -40,12 +30,14 @@ void debugLED(short repeat,int interval, byte red, byte green, byte blue){
 
 
 int val_array_soil[4];
+// get soil moisture from four soil moisture sensors
 void readSoilSensor(){
   val_array_soil[0] = analogRead(WIOLTE_A4);
   val_array_soil[1] = analogRead(WIOLTE_A5);
   val_array_soil[2] = analogRead(WIOLTE_A6);
   val_array_soil[3] = analogRead(WIOLTE_A7);
 }
+// serial print of four soil moisture values
 void printSoilSensor(){
   for(int index=0; index<4; index++){
     SerialUSB.print(index);
@@ -57,16 +49,12 @@ void printSoilSensor(){
 void setup() {
   debugLED(5,200,255,255,255);
   SerialUSB.begin(9600);
-  debugLED(5,200,255,0,0);
   SerialUSB.println("SerialUSB start");
-  debugLED(5,200,0,255,0);
 
 }
 
 void loop() {
-	SerialUSB.print("a");
-  debugLED(5,200,0,0,255);
-
+  debugLED(5,200,0,255,0);
   readSoilSensor();
   printSoilSensor();
   
