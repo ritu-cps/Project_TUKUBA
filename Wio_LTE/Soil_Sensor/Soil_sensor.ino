@@ -16,11 +16,6 @@
 **********/
 #include <WioLTEforArduino.h>
 
-#define sen0193_A4 (WIOLTE_A4)
-#define sen0193_A5 (WIOLTE_A5)
-#define sen0193_A6 (WIOLTE_A6)
-#define sen0193_A7 (WIOLTE_A7)
-
 WioLTE wiolte = WioLTE();
 void debugLED(short repeat = 5,int interval=200, byte red=255, byte green=255, byte blue=255);
 /*!
