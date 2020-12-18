@@ -16,4 +16,5 @@
 ```cmd
 /Users/ユーザー名/Documents/Arduino/libraries
 ```
-!["実験イメージ"](Project_TUKUBA.jpg)
+
+!["実験イメージ"](img/Project_TUKUBA.jpg)

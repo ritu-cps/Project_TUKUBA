@@ -17,21 +17,19 @@
 
 #define ID "AWS IoT"
 #define OUT_TOPIC "tukuba/Iot"
+#define IN_TOPIC "inTopic"
 
-// アナログセンサーピン
 #define sen0193_A4 (WIOLTE_A4)
 #define sen0193_A5 (WIOLTE_A5)
-#define sen0193_A6 (WIOLTE_A6)
-#define sen0193_A7 (WIOLTE_A7)
 
-// send_dataBox
 char pubMessage[512];
-// 通信許可
-bool isSend_data=false;
+
 WioLTE Wio;
 
 WioLTEClient WioClient(&Wio);
 PubSubClient MqttClient;
+
+bool isInternet = false;
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
@@ -44,61 +42,55 @@ void callback(char *topic, byte *payload, unsigned int length)
 void setup()
 {
   wio_setUP();
-  connectMqtt();
+  // setup_Internet();
   SerialUSB.println("### Setup completed.");
-  
 }
 
 void loop()
 {
-  //通信許可ならば
-  if(isSend_data){
-  
-  if ( ! MqttClient.connected() ) {
-    connectMqtt();
-  }
-  String data = buildJson();
-  
-  data.toCharArray(pubMessage, data.length() + 1);
-  MqttClient.publish(OUT_TOPIC, pubMessage);
-  
-  MqttClient.loop();
-  // センサー値が異常でない場合が続いたら false にする。
-  }else{
-    //センサー値で異常を検知したら isSend_data を true する
+  if (isInternet)
+  {
+    String data = buildJson(analogRead(sen0193_A4),
+                            analogRead(sen0193_A5));
+
+    data.toCharArray(pubMessage, data.length() + 1);
+    MqttClient.publish(OUT_TOPIC, pubMessage);
+
+    // MQTT
+    if (!MqttClient.connected())
+    {
+      connectMqtt();
     }
+    MqttClient.loop();
+    delay(2000);
+  }
+  else
+  {
+    //通信許可
+    if (analogRead(sen0193_A4) < 400)
+    {
+      isInternet = true;
+      setup_Internet();
+    }
+  }
 }
 
-/* create send_data
-  @ return String
-*/
-String buildJson()
+String buildJson(int soil_1, int soil_2)
 {
   // データ作成
   String json = "";
   const int capacity = JSON_OBJECT_SIZE(20);
   StaticJsonDocument<capacity> doc;
   DynamicJsonDocument logs(64);
-  int val1, val2, val3, val4;
-  val1 = analogRead(sen0193_A4);
   doc["soil_valueA"] = val1;
 
   val2 = analogRead(sen0193_A5);
   doc["soil_valueB"] = val2;
 
-  val3 = analogRead(sen0193_A6);
-  doc["soil_valueC"] = val3;
-
-  val4 = analogRead(sen0193_A7);
-  doc["soil_valueD"] = val4;
-
-  //  Writ_sd(val1, val2, val3, val4);
   serializeJson(doc, json);
 
   return json;
 }
-
-// Mqtt create connection
 void connectMqtt()
 {
   SerialUSB.println("### Connecting to MQTT server \"" MQTT_SERVER_HOST "\"");
@@ -127,10 +119,10 @@ void wio_setUP()
   delay(500);
 }
 
-// 通信準備
-//　Wio_setUpしてください
-void setup_send() {
+void setup_Internet()
+{
   Wio.PowerSupplyLTE(true);
+
   SerialUSB.println("### Turn on or reset.");
   if (!Wio.TurnOnOrReset())
   {
@@ -145,7 +137,6 @@ void setup_send() {
     return;
   }
 }
-//　通信切断
 void wio_down()
 {
   delay(200);
