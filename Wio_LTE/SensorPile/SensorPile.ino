@@ -50,8 +50,10 @@ Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
 float pressure_air;
 float pressure_water;
+float result_water_level;  // result of water level(height)[cm]
 //--------Soil sensor declare--------
-int val_array_soil[4];
+int values_soil[4];
+float results_soil_moisture[4];  // results of soil moisture[%]
 
 void debugLED(short repeat = 5,int interval=200, byte red=255, byte green=255, byte blue=255);
 /*!
@@ -151,12 +153,17 @@ String buildJson()
   const int capacity = JSON_OBJECT_SIZE(20);
   StaticJsonDocument<capacity> doc;
   DynamicJsonDocument logs(64);
+  doc["water_level"] = result_water_level;
+  doc["soil_moistureA"] = results_soil_moisture[0];
+  doc["soil_moistureB"] = results_soil_moisture[1];
+  //doc["soil_moistureC"] = results_soil_moisture[2];
+  //doc["soil_moistureD"] = results_soil_moisture[3];
   doc["lps33hw_air"] = pressure_air;
   doc["lps33hw_water"] = pressure_water;
-  doc["soil_valueA"] = val_array_soil[0];
-  doc["soil_valueB"] = val_array_soil[1];
-  doc["soil_valueC"] = val_array_soil[2];
-  doc["soil_valueD"] = val_array_soil[3];
+  doc["soil_valueA"] = values_soil[0];
+  doc["soil_valueB"] = values_soil[1];
+  //doc["soil_valueC"] = values_soil[2];
+  //doc["soil_valueD"] = values_soil[3];
 
   //  Writ_sd(val1, val2, val3, val4);
   serializeJson(doc, json);
@@ -198,20 +205,34 @@ void printLPS33HW(){
 //--------Soil sensor function--------
 // get soil moisture from four soil moisture sensors
 void readSoilSensor(){
-  val_array_soil[0] = analogRead(WIOLTE_A4);
-  val_array_soil[1] = analogRead(WIOLTE_A5);
-  val_array_soil[2] = analogRead(WIOLTE_A6);
-  val_array_soil[3] = analogRead(WIOLTE_A7);
+  values_soil[0] = analogRead(WIOLTE_A4);
+  values_soil[1] = analogRead(WIOLTE_A5);
+  values_soil[2] = analogRead(WIOLTE_A6);
+  values_soil[3] = analogRead(WIOLTE_A7);
 }
 // serial print of four soil moisture values
 void printSoilSensor(){
   for(int index=0; index<4; index++){
     SerialUSB.print(index);
     SerialUSB.print(":");
-    SerialUSB.println(val_array_soil[index]);
+    SerialUSB.println(values_soil[index]);
   }
 }
 //--------end Soil sensor function--------
+
+// calculates sensor values and get the measurement result
+void calculateSensors(){
+  static const float rho = 999.97; // water density[kg/m^3]
+  static const float g0 = 9.80665; // standard gravitational acceleration[m/s^2]
+  float pressure = pressure_water - pressure_air; // water pressure[hPa](p=ρgh)
+  result_water_level = ((pressure*100)/(rho*g0)) *100; // water level(hight)[cm]
+
+  static const int value_air = 700; // soil-moisture sensor value in the air(analogRead)
+  static const int value_water = 0; // soil-moisture sensor value in the water(analogRead)
+  for(int index=0; index<4; index++){
+    results_soil_moisture[index] = (values_soil[index] -value_water)/(value_air-value_water);
+  }
+}
 
 void setup() {
   SerialUSB.begin(9600);
@@ -226,8 +247,9 @@ void setup() {
 void loop() {
   readLPS33HW();
 	readSoilSensor();
-  printLPS33HW();
-  printSoilSensor();
+  calculateSensors();
+  //printLPS33HW();
+  //printSoilSensor();
 
   //通信許可ならば
   if(isSend_data){
