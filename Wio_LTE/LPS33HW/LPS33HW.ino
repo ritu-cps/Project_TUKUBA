@@ -24,7 +24,7 @@ Adafruit_LPS35HW lps35hw = Adafruit_LPS35HW();
 /*// For SPI mode, we need a CS pin
 #define LPS_CS  10
 // For software-SPI mode we need SCK/MOSI/MISO pins
-#define LPS_SCK  13
+#define LPS_SCK 13
 #define LPS_MISO 12
 #define LPS_MOSI 11
 */
