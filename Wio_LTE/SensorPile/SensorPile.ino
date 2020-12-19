@@ -44,18 +44,18 @@ PubSubClient MqttClient;
 // send_dataBox
 char pubMessage[512];
 // 通信許可
-bool isSend_data=true;
+bool isInternet = true;
 //--------LPS33HW declare--------
 Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
 float pressure_air;
 float pressure_water;
-float result_water_level;  // result of water level(height)[cm]
+float result_water_level; // result of water level(height)[cm]
 //--------Soil sensor declare--------
 int values_soil[4];
-float results_soil_moisture[4];  // results of soil moisture[%]
+float results_soil_moisture[4]; // results of soil moisture[%]
 
-void debugLED(short repeat = 5,int interval=200, byte red=255, byte green=255, byte blue=255);
+void debugLED(short repeat = 5, int interval = 200, byte red = 255, byte green = 255, byte blue = 255);
 /*!
 *    @brief  use to debug with color LED (WioLTEforArduino.h)
 *    @param  repeat
@@ -65,9 +65,11 @@ void debugLED(short repeat = 5,int interval=200, byte red=255, byte green=255, b
 *    @param  RedGreenBlue
 *            RGBの度合い(0~255)(default = 255,255,255)
 */
-void debugLED(short repeat,int interval, byte red, byte green, byte blue){
+void debugLED(short repeat, int interval, byte red, byte green, byte blue)
+{
   wiolte.PowerSupplyLed(true);
-  for(int index=0; index < repeat; index++){
+  for (int index = 0; index < repeat; index++)
+  {
     wiolte.LedSetRGB(red, green, blue);
     delay(interval);
     wiolte.LedSetRGB(0, 0, 0);
@@ -94,7 +96,8 @@ void wio_setUP()
 
 //--------send LTE function--------
 //　Wio_setUpしてください
-void setup_send() {
+void setup_Internet()
+{
   wiolte.PowerSupplyLTE(true);
   SerialUSB.println("### Turn on or reset.");
   if (!wiolte.TurnOnOrReset())
@@ -174,27 +177,32 @@ String buildJson()
 
 //--------LPS35HW function--------
 // setup LPS33HW
-boolean setupLPS33HW(){
-  if(!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
-  //if (!lps33hw_air.begin_SPI(LPS_CS)) {
-  //if (!lps33hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
+boolean setupLPS33HW()
+{
+  if (!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT))
+  {
+    //if (!lps33hw_air.begin_SPI(LPS_CS)) {
+    //if (!lps33hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     //return false;
   }
-  if(!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_ANOTHER)){
-  //if (!lps33hw_water.begin_SPI(LPS_CS)) {
-  //if (!lps33hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
+  if (!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_ANOTHER))
+  {
+    //if (!lps33hw_water.begin_SPI(LPS_CS)) {
+    //if (!lps33hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     //return false;
   }
   return true;
 }
 // get pressure from two LPS33HW
-void readLPS33HW(){
+void readLPS33HW()
+{
   pressure_air = lps33hw_air.readPressure();
   pressure_water = lps33hw_water.readPressure();
   return;
 }
 // serial print of two pressure values(LPS33HW)
-void printLPS33HW(){
+void printLPS33HW()
+{
   SerialUSB.print("1:");
   SerialUSB.println(pressure_air);
   SerialUSB.print("2:");
@@ -204,15 +212,16 @@ void printLPS33HW(){
 //--------end LPS35HW function--------
 //--------Soil sensor function--------
 // get soil moisture from four soil moisture sensors
-void readSoilSensor(){
+void readSoilSensor()
+{
   values_soil[0] = analogRead(WIOLTE_A4);
   values_soil[1] = analogRead(WIOLTE_A5);
-  values_soil[2] = analogRead(WIOLTE_A6);
-  values_soil[3] = analogRead(WIOLTE_A7);
 }
 // serial print of four soil moisture values
-void printSoilSensor(){
-  for(int index=0; index<4; index++){
+void printSoilSensor()
+{
+  for (int index = 0; index < 4; index++)
+  {
     SerialUSB.print(index);
     SerialUSB.print(":");
     SerialUSB.println(values_soil[index]);
@@ -221,51 +230,68 @@ void printSoilSensor(){
 //--------end Soil sensor function--------
 
 // calculates sensor values and get the measurement result
-void calculateSensors(){
-  static const float rho = 999.97; // water density[kg/m^3]
-  static const float g0 = 9.80665; // standard gravitational acceleration[m/s^2]
-  float pressure = pressure_water - pressure_air; // water pressure[hPa](p=ρgh)
-  result_water_level = ((pressure*100)/(rho*g0)) *100; // water level(hight)[cm]
+void calculateSensors()
+{
+  static const float rho = 999.97;                            // water density[kg/m^3]
+  static const float g0 = 9.80665;                            // standard gravitational acceleration[m/s^2]
+  float pressure = pressure_water - pressure_air;             // water pressure[hPa](p=ρgh)
+  result_water_level = ((pressure * 100) / (rho * g0)) * 100; // water level(hight)[cm]
 
   static const int value_air = 700; // soil-moisture sensor value in the air(analogRead)
   static const int value_water = 0; // soil-moisture sensor value in the water(analogRead)
-  for(int index=0; index<4; index++){
-    results_soil_moisture[index] = (values_soil[index] -value_water)/(value_air-value_water);
+  for (int index = 0; index < 4; index++)
+  {
+    results_soil_moisture[index] = (values_soil[index] - value_water) / (value_air - value_water);
   }
 }
 
-void setup() {
+void setup()
+{
   SerialUSB.begin(9600);
   //SerialUSB.println("serial start");
-  
+
   wio_setUP();
-  setup_send();
+  ///test code///
+  setup_Internet();
   connectMqtt();
-	setupLPS33HW();
+  ///////////////
+  setupLPS33HW();
 }
 
-void loop() {
+void loop()
+{
   readLPS33HW();
-	readSoilSensor();
+  readSoilSensor();
   calculateSensors();
   //printLPS33HW();
   //printSoilSensor();
 
   //通信許可ならば
-  if(isSend_data){
-    if ( ! MqttClient.connected() ) {
+  if (isInternet)
+  {
+    if (!MqttClient.connected())
+    {
       connectMqtt();
     }
     String data = buildJson();
     SerialUSB.println(data);
     data.toCharArray(pubMessage, data.length() + 1);
     MqttClient.publish(OUT_TOPIC, pubMessage);
-  
+
     MqttClient.loop();
     // センサー値が異常でない場合が続いたら false にする。
-  }else{
-    //センサー値で異常を検知したら isSend_data を true する
   }
-  
+  else
+  {
+    //センサー値で異常を検知したら isSend_data を true する
+    //通信許可
+    if (values_soil[0] < 600)
+    {
+      isInternet = true;
+      setup_Internet();
+      connectMqtt();
+    }
+  }
+
   delay(3000);
 }
