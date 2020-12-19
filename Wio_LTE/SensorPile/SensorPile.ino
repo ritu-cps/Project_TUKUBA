@@ -242,12 +242,12 @@ void calculateSensors(){
 *        time you want to dalay minutes(use seconds as a decimal)
 */
 void stayMinutes(float minute){
-  static unsigned long delay_ms = minute * 60000;
-  unsigned long neko = millis() + delay_ms;
-  unsigned long kitty = millis();
+  static unsigned long delay_ms = minute * 60000; // delay time[micro sec] = minutes[m] * 60[s] * 10^3
+  unsigned long end_time = millis() + delay_ms; // wait end time
+  unsigned long elapsed_time = millis();  // current time
   wiolte.Sleep();
-  while(kitty < neko){
-    kitty = millis();
+  while(elapsed_time < end_time){
+    elapsed_time = millis();
   }
   wiolte.Wakeup();
   connectMqtt();
