@@ -43,30 +43,18 @@ PubSubClient MqttClient;
 // send_dataBox
 char pubMessage[512];
 // 通信許可
-<<<<<<< HEAD
-bool isSend_data=true;
-/*--------LPS33HW declare--------*/
-=======
 bool isInternet = true;
 //--------LPS33HW declare--------
->>>>>>> origin/dev_WioLTE
 Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
 float pressure_air; // pressure value obtained from LPS33HW 
 float pressure_water;
-<<<<<<< HEAD
 // result of water level(height)[cm]
 float result_water_level;
 /*--------Soil sensor declare--------*/
 int values_soil[4]; // raw data of soil moisture sensor obtained by analogRead
 // results of soil moisture[%]
 float results_soil_moisture[4];
-=======
-float result_water_level; // result of water level(height)[cm]
-//--------Soil sensor declare--------
-int values_soil[4];
-float results_soil_moisture[4]; // results of soil moisture[%]
->>>>>>> origin/dev_WioLTE
 
 void debugLED(short repeat = 5, int interval = 200, byte red = 255, byte green = 255, byte blue = 255);
 /*!
