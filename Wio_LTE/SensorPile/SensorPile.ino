@@ -237,7 +237,7 @@ void calculateSensors(){
 }
 
 /*!
-*  @brief to delay for a few minutes, during which LTE is put into power saving mode
+*  @brief puts LTE into power saving mode during delay for a few minutes
 *  @param minute
 *        time you want to dalay minutes(use seconds as a decimal)
 */
