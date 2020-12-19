@@ -1,4 +1,3 @@
-// arduinoy用testコード
 /**********
  * ---使用品---
  * マイコンボード:Wio-LTE
@@ -38,22 +37,24 @@
 #define LPS35HW_I2CADDR_ANOTHER 0x5C ///< LPS33HW another i2c address(connect from SDO to GND)
 
 WioLTE wiolte = WioLTE();
-//--------lte & mqtt declare--------
+/*--------lte & mqtt declare--------*/
 WioLTEClient WioClient(&wiolte);
 PubSubClient MqttClient;
 // send_dataBox
 char pubMessage[512];
 // 通信許可
 bool isSend_data=true;
-//--------LPS33HW declare--------
+/*--------LPS33HW declare--------*/
 Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
-float pressure_air;
+float pressure_air; // pressure value obtained from LPS33HW 
 float pressure_water;
-float result_water_level;  // result of water level(height)[cm]
-//--------Soil sensor declare--------
-int values_soil[4];
-float results_soil_moisture[4];  // results of soil moisture[%]
+// result of water level(height)[cm]
+float result_water_level;
+/*--------Soil sensor declare--------*/
+int values_soil[4]; // raw data of soil moisture sensor obtained by analogRead
+// results of soil moisture[%]
+float results_soil_moisture[4];
 
 void debugLED(short repeat = 5,int interval=200, byte red=255, byte green=255, byte blue=255);
 /*!
@@ -76,7 +77,7 @@ void debugLED(short repeat,int interval, byte red, byte green, byte blue){
   wiolte.PowerSupplyLed(false);
 }
 
-//--------wio setup function--------
+/*--------wio setup function--------*/
 void wio_setUP()
 {
   delay(200);
@@ -90,9 +91,9 @@ void wio_setUP()
   wiolte.PowerSupplyGrove(true);
   delay(500);
 }
-//--------end wio setup function--------
+/*--------end wio setup function--------*/
 
-//--------send LTE function--------
+/*--------send LTE function--------*/
 //　Wio_setUpしてください
 void setup_send() {
   wiolte.PowerSupplyLTE(true);
@@ -119,9 +120,9 @@ void wio_down()
   wiolte.PowerSupplyLTE(false);
   wiolte.PowerSupplyGrove(false);
 }
-//--------end send LTE function--------
+/*--------end send LTE function--------*/
 
-//--------mqtt function--------
+/*--------mqtt function--------*/
 void callback(char *topic, byte *payload, unsigned int length)
 {
   SerialUSB.print("Subscribe:");
@@ -143,9 +144,9 @@ void connectMqtt()
   }
   delay(1000);
 }
-//--------end mqtt function--------
+/*--------end mqtt function--------*/
 
-//--------json function--------
+/*--------json function--------*/
 String buildJson()
 {
   // データ作成
@@ -170,9 +171,9 @@ String buildJson()
 
   return json;
 }
-//--------end json function--------
+/*--------end json function--------*/
 
-//--------LPS35HW function--------
+/*--------LPS35HW function--------*/
 // setup LPS33HW
 boolean setupLPS33HW(){
   if(!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
@@ -201,8 +202,8 @@ void printLPS33HW(){
   SerialUSB.println(pressure_water);
   return;
 }
-//--------end LPS35HW function--------
-//--------Soil sensor function--------
+/*--------end LPS35HW function--------*/
+/*--------Soil sensor function--------*/
 // get soil moisture from four soil moisture sensors
 void readSoilSensor(){
   values_soil[0] = analogRead(WIOLTE_A4);
@@ -218,7 +219,7 @@ void printSoilSensor(){
     SerialUSB.println(values_soil[index]);
   }
 }
-//--------end Soil sensor function--------
+/*--------end Soil sensor function--------*/
 
 // calculates sensor values and get the measurement result
 void calculateSensors(){
@@ -257,7 +258,7 @@ void loop() {
       connectMqtt();
     }
     String data = buildJson();
-    SerialUSB.println(data);
+    //SerialUSB.println(data);
     data.toCharArray(pubMessage, data.length() + 1);
     MqttClient.publish(OUT_TOPIC, pubMessage);
   
