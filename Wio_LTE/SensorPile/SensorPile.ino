@@ -236,13 +236,34 @@ void calculateSensors(){
   }
 }
 
+/*!
+*  @brief to delay for a few minutes, during which LTE is put into power saving mode
+*  @param minute
+*        time you want to dalay minutes(use seconds as a decimal)
+*/
+void stayMinutes(float minute){
+  static unsigned long delay_ms = minute * 60000;
+  unsigned long neko = millis() + delay_ms;
+  unsigned long kitty = millis();
+  wiolte.Sleep();
+  while(kitty < neko){
+    kitty = millis();
+  }
+  wiolte.Wakeup();
+  connectMqtt();
+  return;
+}
+
 void setup()
 {
   SerialUSB.begin(9600);
   //SerialUSB.println("serial start");
 
   wio_setUP();
+  setup_Internet();
+  connectMqtt();
   setupLPS33HW();
+  debugLED(5, 200, 255, 255, 255);
 }
 
 void loop()
@@ -277,5 +298,5 @@ void loop()
     }
   }
 
-  delay(3000);
+  stayMinutes(1.5);
 }
