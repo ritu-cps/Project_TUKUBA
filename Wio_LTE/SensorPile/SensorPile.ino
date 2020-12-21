@@ -47,7 +47,7 @@ bool isInternet = true;
 /*--------declare : LPS33HW--------*/
 Adafruit_LPS35HW lps33hw_air = Adafruit_LPS35HW();
 Adafruit_LPS35HW lps33hw_water = Adafruit_LPS35HW();
-float pressure_air; // pressure value obtained from LPS33HW 
+float pressure_air; // pressure value obtained from LPS33HW
 float pressure_water;
 // result of water level(height)[cm]
 float result_water_level;
@@ -56,7 +56,7 @@ int values_soil[4]; // raw data of soil moisture sensor obtained by analogRead
 // results of soil moisture[%]
 float results_soil_moisture[4];
 
-void debugLED(short repeat=5, int interval=200, byte red=255, byte green=255, byte blue=255);
+void debugLED(short repeat = 5, int interval = 200, byte red = 255, byte green = 255, byte blue = 255);
 /*!
 *    @brief  use to debug with color LED (WioLTEforArduino.h)
 *    @param  repeat
@@ -66,9 +66,11 @@ void debugLED(short repeat=5, int interval=200, byte red=255, byte green=255, by
 *    @param  RedGreenBlue
 *            RGBの度合い(0~255)(default = 255,255,255)
 */
-void debugLED(short repeat, int interval, byte red, byte green, byte blue){
+void debugLED(short repeat, int interval, byte red, byte green, byte blue)
+{
   wiolte.PowerSupplyLed(true);
-  for (int index = 0; index < repeat; index++){
+  for (int index = 0; index < repeat; index++)
+  {
     wiolte.LedSetRGB(red, green, blue);
     delay(interval);
     wiolte.LedSetRGB(0, 0, 0);
@@ -176,13 +178,16 @@ String buildJson()
 
 /*--------function : LPS35HW--------*/
 // setup LPS33HW
-boolean setupLPS33HW(){
-  if (!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_ANOTHER)){
+boolean setupLPS33HW()
+{
+  if (!lps33hw_air.begin_I2C(LPS35HW_I2CADDR_ANOTHER))
+  {
     //if (!lps33hw_air.begin_SPI(LPS_CS)) {
     //if (!lps33hw_air.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     //return false;
   }
-  if (!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_DEFAULT)){
+  if (!lps33hw_water.begin_I2C(LPS35HW_I2CADDR_DEFAULT))
+  {
     //if (!lps33hw_water.begin_SPI(LPS_CS)) {
     //if (!lps33hw_water.begin_SPI(LPS_CS, LPS_SCK, LPS_MISO, LPS_MOSI)) {
     //return false;
@@ -190,13 +195,15 @@ boolean setupLPS33HW(){
   return true;
 }
 // get two pressure value from two LPS33HW
-void readLPS33HW(){
-  pressure_air = lps33hw_air.readPressure();  // [hPa]
-  pressure_water = lps33hw_water.readPressure();  // [hPa]
+void readLPS33HW()
+{
+  pressure_air = lps33hw_air.readPressure();     // [hPa]
+  pressure_water = lps33hw_water.readPressure(); // [hPa]
   return;
 }
 // serial print of two pressure values(LPS33HW)
-void printLPS33HW(){
+void printLPS33HW()
+{
   SerialUSB.print("1:");
   SerialUSB.println(pressure_air);
   SerialUSB.print("2:");
@@ -206,15 +213,18 @@ void printLPS33HW(){
 /*--------function end : LPS35HW--------*/
 /*--------function : Soil sensor--------*/
 // get soil moisture from four soil moisture sensors
-void readSoilSensor(){
+void readSoilSensor()
+{
   values_soil[0] = analogRead(WIOLTE_A4);
   values_soil[1] = analogRead(WIOLTE_A5);
   //values_soil[2] = analogRead(WIOLTE_A6);
   //values_soil[3] = analogRead(WIOLTE_A7);
 }
 // serial print of four soil moisture values
-void printSoilSensor(){
-  for (int index = 0; index < 4; index++){
+void printSoilSensor()
+{
+  for (int index = 0; index < 4; index++)
+  {
     SerialUSB.print(index);
     SerialUSB.print(":");
     SerialUSB.println(values_soil[index]);
@@ -223,15 +233,17 @@ void printSoilSensor(){
 /*--------function end : Soil sensor--------*/
 
 // calculates sensor values and get the measurement result
-void calculateSensors(){
+void calculateSensors()
+{
   static const float rho = 999.97;                            // water density[kg/m^3]
   static const float g0 = 9.80665;                            // standard gravitational acceleration[m/s^2]
   float pressure = pressure_water - pressure_air;             // water pressure[hPa](p=ρgh)
   result_water_level = ((pressure * 100) / (rho * g0)) * 100; // water level(hight)[cm]
 
-  static const int value_air = 780; // soil-moisture sensor value in the air(analogRead)
+  static const int value_air = 780;   // soil-moisture sensor value in the air(analogRead)
   static const int value_water = 360; // soil-moisture sensor value in the water(analogRead)
-  for (int index = 0; index < 4; index++){
+  for (int index = 0; index < 4; index++)
+  {
     results_soil_moisture[index] = (values_soil[index] - value_water) / float(value_air - value_water);
   }
 }
@@ -241,16 +253,19 @@ void calculateSensors(){
 *  @param minute
 *        time you want to dalay minutes(use seconds as a decimal)
 */
-void stayMinutes(float minute){
+void stayMinutes(float minute)
+{
   static unsigned long delay_ms = minute * 60000; // delay time[micro sec] = minutes[m] * 60[s] * 10^3
-  unsigned long end_time = millis() + delay_ms; // wait end time
-  unsigned long elapsed_time = millis();  // current time
+  unsigned long end_time = millis() + delay_ms;   // wait end time
+  unsigned long elapsed_time = millis();          // current time
   wiolte.Sleep();
-  while(elapsed_time < end_time){
+  while (elapsed_time < end_time)
+  {
     elapsed_time = millis();
+    MqttClient.loop();
   }
   wiolte.Wakeup();
-  connectMqtt();
+  delay(300);
   return;
 }
 
@@ -271,23 +286,26 @@ void loop()
   readLPS33HW();
   readSoilSensor();
   calculateSensors();
-  //printLPS33HW();
-  //printSoilSensor();
-
-  String data = buildJson();
-  SerialUSB.println(data);
-  data.toCharArray(pubMessage, data.length() + 1);
 
   //通信許可ならば
-  if (isInternet){
-    if (!MqttClient.connected()){
+  if (isInternet)
+  {
+    String data = buildJson();
+    SerialUSB.println(data);
+    data.toCharArray(pubMessage, data.length() + 1);
+
+    if (!MqttClient.connected())
+    {
       connectMqtt();
     }
     MqttClient.publish(OUT_TOPIC, pubMessage);
 
     MqttClient.loop();
     // センサー値が異常でない場合が続いたら isInternet を false にする
-  }else{
+    stayMinutes(1.5);
+  }
+  else
+  {
     //センサー値で異常を検知したら isInternet を true にする
     //通信許可
     if (values_soil[0] < 600)
@@ -297,6 +315,4 @@ void loop()
       connectMqtt();
     }
   }
-
-  stayMinutes(1.5);
 }
