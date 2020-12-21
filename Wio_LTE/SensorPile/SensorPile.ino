@@ -245,13 +245,12 @@ void stayMinutes(float minute){
   static unsigned long delay_ms = minute * 60000; // delay time[micro sec] = minutes[m] * 60[s] * 10^3
   unsigned long end_time = millis() + delay_ms; // wait end time
   unsigned long elapsed_time = millis();  // current time
-  //wiolte.Sleep();
+  wiolte.Sleep();
   while(elapsed_time < end_time){
     elapsed_time = millis();
+    MqttClient.loop();
   }
-  //wiolte.Wakeup();
-  //connectMqtt();
-  MqttClient.loop();
+  wiolte.Wakeup();
   return;
 }
 
@@ -302,10 +301,5 @@ void loop()
     }
   }
 
-  //stayMinutes(1.5);
-  wio_down();
-  delay(90000UL);
-  wio_setUP();
-  setup_Internet();
-  connectMqtt();
+  stayMinutes(1.5);
 }
