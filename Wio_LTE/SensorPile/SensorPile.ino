@@ -245,12 +245,13 @@ void stayMinutes(float minute){
   static unsigned long delay_ms = minute * 60000; // delay time[micro sec] = minutes[m] * 60[s] * 10^3
   unsigned long end_time = millis() + delay_ms; // wait end time
   unsigned long elapsed_time = millis();  // current time
-  wiolte.Sleep();
+  //wiolte.Sleep();
   while(elapsed_time < end_time){
     elapsed_time = millis();
   }
-  wiolte.Wakeup();
-  connectMqtt();
+  //wiolte.Wakeup();
+  //connectMqtt();
+  MqttClient.loop();
   return;
 }
 
@@ -281,9 +282,12 @@ void loop()
   //通信許可ならば
   if (isInternet){
     if (!MqttClient.connected()){
+      debugLED(5,200,0,255,0);
       connectMqtt();
     }
-    MqttClient.publish(OUT_TOPIC, pubMessage);
+    //MqttClient.publish(OUT_TOPIC, pubMessage);
+    if(!MqttClient.publish(OUT_TOPIC, pubMessage))
+      debugLED(5,200,255,0,0);
 
     MqttClient.loop();
     // センサー値が異常でない場合が続いたら isInternet を false にする
@@ -298,5 +302,10 @@ void loop()
     }
   }
 
-  stayMinutes(1.5);
+  //stayMinutes(1.5);
+  wio_down();
+  delay(90000UL);
+  wio_setUP();
+  setup_Internet();
+  connectMqtt();
 }
